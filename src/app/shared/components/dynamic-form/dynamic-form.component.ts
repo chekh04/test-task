@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
-import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {Form, FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
+import {debounceTime, distinctUntilChanged, switchMap, catchError, first} from 'rxjs/operators';
 import { of, Subject, timer, takeUntil } from 'rxjs';
 import { CustomValidators } from '../../validators';
 import { CheckUsernameRequestData } from '../../interface/requests';
@@ -34,7 +34,37 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.addForm();
+    this.validateUserNameOnChange();
+  }
 
+  public addForm() {
+    const formGroup = this.fb.group({
+      country: ['', [Validators.required, CustomValidators.countryValidator()]],
+      username: ['', [Validators.required]],
+      birthday: ['', [Validators.required, CustomValidators.birthdayValidator()]]
+    });
+
+    const formIndex = this.formsArray.length;
+    this.formsArray.push(formGroup);
+    this.subscribeOnUserNameChanges(formGroup, formIndex);
+  }
+
+  public removeForm(index: number) {
+    this.formsArray.removeAt(index);
+  }
+
+  public onSubmit() {
+    console.log(this.form);
+    if (this.form.valid && !this.isSubmitting) {
+      this.startSubmissionProcess();
+    }
+  }
+
+  public cancelSubmission() {
+    this.stopSubmissionProcess();
+  }
+
+  private validateUserNameOnChange(): void {
     this.usernameCheckSubject.pipe(
       debounceTime(500),
       distinctUntilChanged((prev, curr) => prev.index === curr.index && prev.username === curr.username),
@@ -62,57 +92,32 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  public addForm() {
-    const formGroup = this.fb.group({
-      country: ['', [Validators.required, CustomValidators.countryValidator()]],
-      username: ['', [Validators.required]],
-      birthday: ['', [Validators.required, CustomValidators.birthdayValidator()]]
-    });
-
-    const formIndex = this.formsArray.length;
-    this.formsArray.push(formGroup);
-
+  private subscribeOnUserNameChanges(formGroup: FormGroup, formIndex: number): void {
     const usernameControl = formGroup.get('username');
     usernameControl?.valueChanges.pipe(
       debounceTime(500),
-      distinctUntilChanged()
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
     ).subscribe(username => {
       this.usernameCheckSubject.next({index: formIndex, username: username || ''});
     });
   }
 
-  public removeForm(index: number) {
-    this.formsArray.removeAt(index);
-  }
-
-  public onSubmit() {
-    console.log(this.form);
-    if (this.form.valid && !this.isSubmitting) {
-      this.startSubmissionProcess();
-    }
-  }
-
-  public cancelSubmission() {
-    this.stopSubmissionProcess();
-  }
-
   private startSubmissionProcess() {
-    console.log(this.form);
     this.isSubmitting = true;
     this.timerActive = true;
-
-    // Disable all form controls
+    this.timeRemaining = this.MAX_TIMER_TIME;
     this.form.disable();
 
-    timer(0, 1000)
+    const countdown = timer(0, 1000)
       .pipe(
-        takeUntil(this.destroy$),
-        takeUntil(timer(5000))
+        takeUntil(this.destroy$)
       )
       .subscribe({
         next: (tick) => {
           this.timeRemaining = this.MAX_TIMER_TIME - tick;
           if (this.timeRemaining <= 0) {
+            countdown.unsubscribe();
             this.submitForms();
           }
         }
@@ -124,18 +129,20 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
     this.timerActive = false;
     this.timeRemaining = 0;
 
-    // Re-enable all form controls
     this.form.enable();
+    this.destroy$.next();
   }
 
   private submitForms() {
+    if (!this.isSubmitting) {
+      return;
+    }
+
     this.timerActive = false;
     const formData = this.form.value.forms;
-    console.log('Submitting forms:', formData);
 
-    this.http.post('/api/submitForm', { forms: formData }).subscribe({
+    this.http.post('/api/submitForm', { forms: formData }).pipe(first()).subscribe({
       next: (response) => {
-        console.log('Form submitted successfully:', response);
         this.clearForms();
         this.stopSubmissionProcess();
         alert('Forms submitted successfully!');
@@ -149,9 +156,9 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
   }
 
   private clearForms() {
-    // Clear all forms and reset to initial state
-    this.formsArray.clear();
-    this.addForm();
+    this.formsArray.controls.forEach(formGroup => {
+      formGroup.reset();
+    });
   }
 
   private getForm(): FormGroup {
