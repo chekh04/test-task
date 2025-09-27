@@ -23,8 +23,8 @@ import { Country } from '../../enum/country';
           [control]="control"
           [fieldName]="fieldName"
         />
-        <div 
-          *ngIf="showSuggestions && filteredCountries.length > 0" 
+        <div
+          *ngIf="showSuggestions && filteredCountries.length > 0"
           class="dropdown-menu show position-absolute w-100"
           style="top: 100%; z-index: 1000;"
         >
@@ -59,7 +59,7 @@ export class CountryInputComponent implements ControlValueAccessor, OnInit {
   disabled: boolean = false;
   showSuggestions: boolean = false;
   filteredCountries: string[] = [];
-  
+
   private allCountries = Object.values(Country);
   private onChange = (value: string) => {};
   private onTouched = () => {};
@@ -82,7 +82,6 @@ export class CountryInputComponent implements ControlValueAccessor, OnInit {
   }
 
   onBlur() {
-    // Delay hiding suggestions to allow clicking on them
     setTimeout(() => {
       this.showSuggestions = false;
       this.onTouched();

@@ -27,24 +27,24 @@
   </div>
   <form [formGroup]="form">
     <div formArrayName="forms" class="forms-grid">
-      @for (formGroup of formsArray.controls; track $index; let i = $index) {
+      @for (formData of formsData; track formData.id; let i = $index) {
         <div
           [formGroupName]="i"
           class="form-card">
           <div class="form-body">
               <app-country-input
                 label="Country"
-                inputId="country-{{i}}"
+                inputId="country-{{formData.id}}"
                 placeholder="Select country"
                 formControlName="country"
-                [control]="formGroup.get('country')!"
+                [control]="formData.formGroup.get('country')!"
                 fieldName="Country"
               ></app-country-input>
               @if (formsArray.length > 1) {
                 <button
                   type="button"
                   class="btn-close"
-                  (click)="removeForm(i)"
+                  (click)="removeForm(formData.id)"
                   title="Remove form">
                   ×
                 </button>
@@ -52,24 +52,24 @@
 
             <app-text-input
               label="Username"
-              inputId="username-{{i}}"
+              inputId="username-{{formData.id}}"
               placeholder="Enter username"
               formControlName="username"
-              [control]="formGroup.get('username')!"
+              [control]="formData.formGroup.get('username')!"
               fieldName="Username"
             ></app-text-input>
 
             <app-datepicker
               label="Birthday"
-              inputId="birthday-{{i}}"
+              inputId="birthday-{{formData.id}}"
               formControlName="birthday"
-              [control]="formGroup.get('birthday')!"
+              [control]="formData.formGroup.get('birthday')!"
               fieldName="Birthday"
             ></app-datepicker>
           </div>
         </div>
       }
-      @if (formsArray.length < 10) {
+      @if (canAddMoreForms) {
         <button
           type="button"
           class="add-form-btn btn-primary"
