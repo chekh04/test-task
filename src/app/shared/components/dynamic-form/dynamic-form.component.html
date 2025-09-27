@@ -1,4 +1,17 @@
 <div class="forms-container">
+  <div class="form-actions">
+    <div class="submit-section">
+        <span *ngIf="invalidFormsCount > 0" class="invalid-count">
+          Invalid forms: {{ invalidFormsCount }}
+        </span>
+      <button
+        type="submit"
+        class="btn btn-success"
+        [disabled]="form.invalid">
+        Submit
+      </button>
+    </div>
+  </div>
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <div formArrayName="forms" class="forms-grid">
       @for (formGroup of formsArray.controls; track $index; let i = $index) {
@@ -37,30 +50,14 @@
           </div>
         </div>
       }
-
-    </div>
-
-    <div class="form-actions">
       @if (formsArray.length < 10) {
         <button
-        type="button"
-        class="btn btn-primary"
-        (click)="addForm()">
-        Add new form
-      </button>
-      }
-
-      <div class="submit-section">
-        <span *ngIf="invalidFormsCount > 0" class="invalid-count">
-          Invalid forms: {{ invalidFormsCount }}
-        </span>
-        <button
-          type="submit"
-          class="btn btn-success"
-          [disabled]="form.invalid">
-          Submit
+          type="button"
+          class="add-form-btn btn-primary"
+          (click)="addForm()">
+          Add new form
         </button>
-      </div>
+      }
     </div>
   </form>
 </div>

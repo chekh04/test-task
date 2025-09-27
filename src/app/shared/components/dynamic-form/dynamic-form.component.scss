@@ -1,7 +1,10 @@
 .forms-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .forms-grid {
@@ -57,6 +60,13 @@
   color: #dc3545;
   font-weight: 500;
   font-size: 0.9rem;
+}
+
+.add-form-btn {
+  height: 274px;
+  background: transparent;
+  border: 2px dashed #dee2e6;
+  border-radius: 4px;
 }
 
 @media (max-width: 768px) {
