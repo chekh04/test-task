@@ -110,9 +110,7 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
     this.form.disable();
 
     const countdown = timer(0, 1000)
-      .pipe(
-        takeUntil(this.destroy$)
-      )
+      .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (tick) => {
           this.timeRemaining = this.MAX_TIMER_TIME - tick;

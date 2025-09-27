@@ -1,6 +1,6 @@
 import { Directive, ElementRef, Input, OnInit, OnDestroy } from '@angular/core';
 import { AbstractControl } from '@angular/forms';
-import { Subscription } from 'rxjs';
+import {merge, Subject, takeUntil} from 'rxjs';
 
 @Directive({
   selector: '[appInputValidation]'
@@ -9,28 +9,24 @@ export class InputValidationDirective implements OnInit, OnDestroy {
   @Input() control!: AbstractControl;
   @Input() fieldName!: string;
 
-  private subscription?: Subscription;
   private errorElement?: HTMLDivElement;
+  private destroy$ = new Subject<void>();
 
   constructor(private el: ElementRef) {}
 
   ngOnInit() {
-    this.subscription = this.control.statusChanges.subscribe(() => {
+    this.control.statusChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       this.updateValidationState();
     });
 
     this.updateValidationState();
   }
 
-  ngOnDestroy() {
-    this.subscription?.unsubscribe();
-    this.removeErrorElement();
-  }
-
   private updateValidationState() {
     const isInvalid = this.control.invalid && (this.control.dirty || this.control.touched);
+    const isPending = this.control.pending;
 
-    if (isInvalid) {
+    if (isInvalid && !isPending) {
       this.addErrorClass();
       this.showErrorMessage();
     } else {
@@ -41,10 +37,14 @@ export class InputValidationDirective implements OnInit, OnDestroy {
 
   private addErrorClass() {
     this.el.nativeElement.classList.add('is-invalid');
+    this.el.nativeElement.style.borderColor = '#dc3545';
+    this.el.nativeElement.style.borderWidth = '2px';
   }
 
   private removeErrorClass() {
     this.el.nativeElement.classList.remove('is-invalid');
+    this.el.nativeElement.style.borderColor = '';
+    this.el.nativeElement.style.borderWidth = '';
   }
 
   private showErrorMessage() {
@@ -76,5 +76,11 @@ export class InputValidationDirective implements OnInit, OnDestroy {
       this.errorElement.parentNode.removeChild(this.errorElement);
       this.errorElement = undefined;
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.removeErrorElement();
   }
 }

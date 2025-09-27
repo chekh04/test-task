@@ -1,5 +1,5 @@
 import { Component, Input, forwardRef, OnInit } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, AbstractControl } from '@angular/forms';
 import { Country } from '../../enum/country';
 
 @Component({
@@ -19,6 +19,9 @@ import { Country } from '../../enum/country';
           (blur)="onBlur()"
           [disabled]="disabled"
           autocomplete="off"
+          appInputValidation
+          [control]="control"
+          [fieldName]="fieldName"
         />
         <div 
           *ngIf="showSuggestions && filteredCountries.length > 0" 
@@ -49,6 +52,8 @@ export class CountryInputComponent implements ControlValueAccessor, OnInit {
   @Input() label: string = '';
   @Input() placeholder: string = '';
   @Input() inputId: string = '';
+  @Input() control!: AbstractControl;
+  @Input() fieldName: string = '';
 
   value: string = '';
   disabled: boolean = false;

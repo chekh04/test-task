@@ -37,7 +37,6 @@
               inputId="country-{{i}}"
               placeholder="Select country"
               formControlName="country"
-              appInputValidation
               [control]="formGroup.get('country')!"
               fieldName="Country"
             ></app-country-input>
@@ -47,7 +46,6 @@
               inputId="username-{{i}}"
               placeholder="Enter username"
               formControlName="username"
-              appInputValidation
               [control]="formGroup.get('username')!"
               fieldName="Username"
             ></app-text-input>
@@ -56,7 +54,6 @@
               label="Birthday"
               inputId="birthday-{{i}}"
               formControlName="birthday"
-              appInputValidation
               [control]="formGroup.get('birthday')!"
               fieldName="Birthday"
             ></app-datepicker>

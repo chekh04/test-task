@@ -1,5 +1,5 @@
 import { Component, Input, forwardRef } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/forms';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl, AbstractControl } from '@angular/forms';
 
 @Component({
   selector: 'app-text-input',
@@ -7,6 +7,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/f
     <div class="form-group">
       <label [for]="inputId" class="form-label">{{ label }}</label>
       <input
+        #inputRef
         [id]="inputId"
         type="text"
         class="form-control"
@@ -15,6 +16,9 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, FormControl } from '@angular/f
         (input)="onInput($event)"
         (blur)="onBlur()"
         [disabled]="disabled"
+        appInputValidation
+        [control]="control"
+        [fieldName]="fieldName"
       />
     </div>
   `,
@@ -30,6 +34,8 @@ export class TextInputComponent implements ControlValueAccessor {
   @Input() label: string = '';
   @Input() placeholder: string = '';
   @Input() inputId: string = '';
+  @Input() control!: AbstractControl;
+  @Input() fieldName: string = '';
 
   value: string = '';
   disabled: boolean = false;
