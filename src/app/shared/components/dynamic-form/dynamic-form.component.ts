@@ -3,9 +3,9 @@ import {Form, FormArray, FormBuilder, FormGroup, Validators} from '@angular/form
 import { HttpClient } from '@angular/common/http';
 import {debounceTime, distinctUntilChanged, switchMap, catchError, first} from 'rxjs/operators';
 import { of, Subject, timer, takeUntil } from 'rxjs';
-import { CustomValidators } from '../../validators';
 import { CheckUsernameRequestData } from '../../interface/requests';
 import { CheckUserResponseData } from '../../interface/responses';
+import {CustomValidators} from "../../validators/custom-validators";
 
 @Component({
   selector: 'app-dynamic-form',
@@ -41,7 +41,7 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
     const formGroup = this.fb.group({
       country: ['', [Validators.required, CustomValidators.countryValidator()]],
       username: ['', [Validators.required]],
-      birthday: ['', [Validators.required, CustomValidators.birthdayValidator()]]
+      birthday: ['', [Validators.required]]
     });
 
     const formIndex = this.formsArray.length;

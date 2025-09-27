@@ -38,7 +38,6 @@ export class MockBackendInterceptor implements HttpInterceptor {
 
     return of(response).pipe(
       delay(RESPONSE_DELAY_MS),
-      tap(() => console.log('submitForm response:', req.body))
     );
   }
 }

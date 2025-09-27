@@ -38,7 +38,6 @@ export class DatepickerComponent implements ControlValueAccessor {
   private onTouched = () => {};
 
   ngOnInit() {
-    // Set max date to today
     const today = new Date();
     this.maxDate = today.toISOString().split('T')[0];
   }

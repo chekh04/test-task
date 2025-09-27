@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 export class InputValidationDirective implements OnInit, OnDestroy {
   @Input() control!: AbstractControl;
   @Input() fieldName!: string;
-  
+
   private subscription?: Subscription;
   private errorElement?: HTMLDivElement;
 
@@ -18,8 +18,7 @@ export class InputValidationDirective implements OnInit, OnDestroy {
     this.subscription = this.control.statusChanges.subscribe(() => {
       this.updateValidationState();
     });
-    
-    // Initial validation state
+
     this.updateValidationState();
   }
 
@@ -30,7 +29,7 @@ export class InputValidationDirective implements OnInit, OnDestroy {
 
   private updateValidationState() {
     const isInvalid = this.control.invalid && (this.control.dirty || this.control.touched);
-    
+
     if (isInvalid) {
       this.addErrorClass();
       this.showErrorMessage();
@@ -65,10 +64,9 @@ export class InputValidationDirective implements OnInit, OnDestroy {
     this.errorElement = document.createElement('div');
     this.errorElement.className = 'invalid-feedback';
     this.errorElement.textContent = `Please provide a correct ${this.fieldName}`;
-    
-    // Insert after the input element
+
     this.el.nativeElement.parentNode.insertBefore(
-      this.errorElement, 
+      this.errorElement,
       this.el.nativeElement.nextSibling
     );
   }
