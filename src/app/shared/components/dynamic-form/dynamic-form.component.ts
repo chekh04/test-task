@@ -54,7 +54,6 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
   }
 
   public onSubmit() {
-    console.log(this.form);
     if (this.form.valid && !this.isSubmitting) {
       this.startSubmissionProcess();
     }

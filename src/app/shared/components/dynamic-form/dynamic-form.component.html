@@ -32,14 +32,23 @@
           [formGroupName]="i"
           class="form-card">
           <div class="form-body">
-            <app-country-input
-              label="Country"
-              inputId="country-{{i}}"
-              placeholder="Select country"
-              formControlName="country"
-              [control]="formGroup.get('country')!"
-              fieldName="Country"
-            ></app-country-input>
+              <app-country-input
+                label="Country"
+                inputId="country-{{i}}"
+                placeholder="Select country"
+                formControlName="country"
+                [control]="formGroup.get('country')!"
+                fieldName="Country"
+              ></app-country-input>
+              @if (formsArray.length > 1) {
+                <button
+                  type="button"
+                  class="btn-close"
+                  (click)="removeForm(i)"
+                  title="Remove form">
+                  ×
+                </button>
+              }
 
             <app-text-input
               label="Username"
