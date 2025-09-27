@@ -15,7 +15,7 @@
 }
 
 .form-card {
-  border: 1px solid #dee2e6;
+  border: 1px solid #c4c4c7;
   border-radius: 0.375rem;
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
   background: white;
@@ -62,10 +62,17 @@
   font-size: 0.9rem;
 }
 
+.timer-display {
+  color: #c4c4c7;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-right: 12px;
+}
+
 .add-form-btn {
   height: 274px;
   background: transparent;
-  border: 2px dashed #dee2e6;
+  border: 2px dashed #c4c4c7;
   border-radius: 4px;
 }
 

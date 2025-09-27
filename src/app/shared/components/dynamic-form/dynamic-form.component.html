@@ -1,18 +1,31 @@
 <div class="forms-container">
   <div class="form-actions">
     <div class="submit-section">
-        <span *ngIf="invalidFormsCount > 0" class="invalid-count">
-          Invalid forms: {{ invalidFormsCount }}
-        </span>
-      <button
-        type="submit"
-        class="btn btn-success"
-        [disabled]="form.invalid">
-        Submit
-      </button>
+      @if (!isSubmitting) {
+        <button
+          (click)="onSubmit()"
+          class="btn btn-primary"
+          [disabled]="form.invalid">
+          Submit all forms
+        </button>
+        @if (invalidFormsCount > 0) {
+          <span class="invalid-count">Invalid forms: {{ invalidFormsCount }}</span>
+        }
+      }
+      @if (isSubmitting) {
+        <button
+          type="button"
+          class="btn btn-danger"
+          (click)="cancelSubmission()">
+          Cancel
+        </button>
+        @if (timerActive) {
+          <span class="timer-display">0:{{ timeRemaining }}s</span>
+        }
+      }
     </div>
   </div>
-  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+  <form [formGroup]="form">
     <div formArrayName="forms" class="forms-grid">
       @for (formGroup of formsArray.controls; track $index; let i = $index) {
         <div

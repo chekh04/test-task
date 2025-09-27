@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { debounceTime, distinctUntilChanged, switchMap, catchError } from 'rxjs/operators';
-import { of, Subject } from 'rxjs';
+import { of, Subject, timer, takeUntil } from 'rxjs';
 import { CustomValidators } from '../../validators';
 import { CheckUsernameRequestData } from '../../interface/requests';
 import { CheckUserResponseData } from '../../interface/responses';
@@ -16,8 +16,13 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
   private usernameCheckSubject = new Subject<{index: number, username: string}>();
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
+  private destroy$ = new Subject<void>();
+  private MAX_TIMER_TIME = 5;
 
   public form: FormGroup = this.getForm();
+  public isSubmitting = false;
+  public timeRemaining = 0;
+  public timerActive = false;
 
   get formsArray(): FormArray {
     return this.form.get('forms') as FormArray;
@@ -81,21 +86,72 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
   }
 
   public onSubmit() {
-    if (this.form.valid) {
-      const formData = this.form.value.forms;
-      console.log('Submitting forms:', formData);
+    console.log(this.form);
+    if (this.form.valid && !this.isSubmitting) {
+      this.startSubmissionProcess();
+    }
+  }
 
-      this.http.post('/api/submitForm', { forms: formData }).subscribe({
-        next: (response) => {
-          console.log('Form submitted successfully:', response);
-          alert('Forms submitted successfully!');
-        },
-        error: (error) => {
-          console.error('Error submitting forms:', error);
-          alert('Error submitting forms. Please try again.');
+  public cancelSubmission() {
+    this.stopSubmissionProcess();
+  }
+
+  private startSubmissionProcess() {
+    console.log(this.form);
+    this.isSubmitting = true;
+    this.timerActive = true;
+
+    // Disable all form controls
+    this.form.disable();
+
+    timer(0, 1000)
+      .pipe(
+        takeUntil(this.destroy$),
+        takeUntil(timer(5000))
+      )
+      .subscribe({
+        next: (tick) => {
+          this.timeRemaining = this.MAX_TIMER_TIME - tick;
+          if (this.timeRemaining <= 0) {
+            this.submitForms();
+          }
         }
       });
-    }
+  }
+
+  private stopSubmissionProcess() {
+    this.isSubmitting = false;
+    this.timerActive = false;
+    this.timeRemaining = 0;
+
+    // Re-enable all form controls
+    this.form.enable();
+  }
+
+  private submitForms() {
+    this.timerActive = false;
+    const formData = this.form.value.forms;
+    console.log('Submitting forms:', formData);
+
+    this.http.post('/api/submitForm', { forms: formData }).subscribe({
+      next: (response) => {
+        console.log('Form submitted successfully:', response);
+        this.clearForms();
+        this.stopSubmissionProcess();
+        alert('Forms submitted successfully!');
+      },
+      error: (error) => {
+        console.error('Error submitting forms:', error);
+        this.stopSubmissionProcess();
+        alert('Error submitting forms. Please try again.');
+      }
+    });
+  }
+
+  private clearForms() {
+    // Clear all forms and reset to initial state
+    this.formsArray.clear();
+    this.addForm();
   }
 
   private getForm(): FormGroup {
@@ -106,5 +162,7 @@ export class DynamicFormComponent implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.usernameCheckSubject.complete();
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }
