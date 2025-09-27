@@ -1,0 +1,66 @@
+<div class="forms-container">
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div formArrayName="forms" class="forms-grid">
+      @for (formGroup of formsArray.controls; track $index; let i = $index) {
+        <div
+          [formGroupName]="i"
+          class="form-card">
+          <div class="form-body">
+            <app-country-input
+              label="Country"
+              inputId="country-{{i}}"
+              placeholder="Select country"
+              formControlName="country"
+              appInputValidation
+              [control]="formGroup.get('country')!"
+              fieldName="Country"
+            ></app-country-input>
+
+            <app-text-input
+              label="Username"
+              inputId="username-{{i}}"
+              placeholder="Enter username"
+              formControlName="username"
+              appInputValidation
+              [control]="formGroup.get('username')!"
+              fieldName="Username"
+            ></app-text-input>
+
+            <app-datepicker
+              label="Birthday"
+              inputId="birthday-{{i}}"
+              formControlName="birthday"
+              appInputValidation
+              [control]="formGroup.get('birthday')!"
+              fieldName="Birthday"
+            ></app-datepicker>
+          </div>
+        </div>
+      }
+
+    </div>
+
+    <div class="form-actions">
+      @if (formsArray.length < 10) {
+        <button
+        type="button"
+        class="btn btn-primary"
+        (click)="addForm()">
+        Add new form
+      </button>
+      }
+
+      <div class="submit-section">
+        <span *ngIf="invalidFormsCount > 0" class="invalid-count">
+          Invalid forms: {{ invalidFormsCount }}
+        </span>
+        <button
+          type="submit"
+          class="btn btn-success"
+          [disabled]="form.invalid">
+          Submit
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
